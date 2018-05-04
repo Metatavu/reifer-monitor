@@ -1,0 +1,99 @@
+#:kivy 1.10.0
+
+<MonitorDeviceWidget>:
+    canvas.before:
+        Color:
+            rgba: 0, 0, 1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    StackLayout:
+        width: root.width
+        height: root.height
+        cols: 5
+        Label:
+            text: "Sensorien tila"
+            text_size: self.size
+            halign: 'left'
+            size_hint_x: 1
+            size_hint_y: 1/12
+        Label:
+            text: "Virta: aktiivinen"
+            size_hint_x: 1/5
+            size_hint_y: 3/12
+            canvas.before:
+                Color:
+                    rgba: 0, 0.67, 0.375, 1
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+        Label:
+            text: "T\u00E4rin\u00E4: ei aktiivinen"
+            size_hint_x: 1/5
+            size_hint_y: 3/12
+            canvas.before:
+                Color:
+                    rgba: 0.67, 0.125, 0, 1
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+        Label:
+            text: ""
+            size_hint_x: 1/5
+            size_hint_y: 3/12
+        Label:
+            text: ""
+            size_hint_x: 1/5
+            size_hint_y: 3/12
+        Label:
+            text: ""
+            size_hint_x: 1/5
+            size_hint_y: 3/12
+        Label:
+            text: "Tilaus"
+            text_size: self.size
+            halign: 'left'
+            size_hint_x: 1
+            size_hint_y: 1/12
+        Label:
+            text: "Haukion Kala: 50 perkuukoukkua"
+            text_size: self.size
+            valign: 'top'
+            halign: 'left'
+            size_hint_x: 1
+            size_hint_y: 2/12
+        TextInput:
+            text: "0006556795"
+            size_hint_x: 1
+            size_hint_y: 1/12
+        Label:
+            text: "Ty\u00F6ntekij\u00F6iden lukum\u00E4\u00E4r\u00E4"
+            text_size: self.size
+            halign: 'left'
+            size_hint_x: 1
+            size_hint_y: 1/12
+        Button:
+            font_size: 70
+            text: "0"
+            size_hint_x: 1/5
+            size_hint_y: 3/12
+        Button:
+            font_size: 70
+            text: "1"
+            size_hint_x: 1/5
+            size_hint_y: 3/12
+        Button:
+            font_size: 70
+            text: "2"
+            size_hint_x: 1/5
+            size_hint_y: 3/12
+        Button:
+            font_size: 70
+            text: "3"
+            size_hint_x: 1/5
+            size_hint_y: 3/12
+        Button:
+            font_size: 70
+            text: "4"
+            size_hint_x: 1/5
+            size_hint_y: 3/12
