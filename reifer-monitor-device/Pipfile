@@ -13,7 +13,7 @@ pygments = "*"
 "kivy.deps.glew" = "*"
 
 [dev-packages]
-pytest = "*"
+nose = "*"
 pylint = "*"
 mypy = "*"
 rope = "*"

@@ -1,0 +1,168 @@
+#:kivy 1.10.0
+
+<MonitorDeviceWidget>:
+    canvas.before:
+        Color:
+            rgba: 0, 0, 0.7, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    AnchorLayout:
+        width: root.width
+        height: root.height
+        anchor_x: 'right'
+        Label:
+            text: "Ty\u00F6pisteen tila\n" + root.workstation_state
+            halign: 'center'
+            size_hint_x: 1/5
+            size_hint_y: 1
+            canvas.before:
+                Color:
+                    r: root.workstation_color_r
+                    g: root.workstation_color_g
+                    b: root.workstation_color_b
+                    a: root.workstation_color_a
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+    StackLayout:
+        width: (4/5) * root.width
+        height: root.height
+        cols: 5
+        padding: 5
+        Label:
+            text: "Sensorien tila"
+            text_size: self.size
+            halign: 'left'
+            size_hint_x: 1
+            size_hint_y: 1/12
+        Label:
+            text: root.sensor_statuses[0].name + "\n" + root.sensor_statuses[0].status
+            halign: 'center'
+            size_hint_x: 1/5
+            size_hint_y: 3/12
+            canvas.before:
+                Color:
+                    r: root.sensor_statuses[0].color.r
+                    g: root.sensor_statuses[0].color.g
+                    b: root.sensor_statuses[0].color.b
+                    a: root.sensor_statuses[0].color.a
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+        Label:
+            text: root.sensor_statuses[1].name + "\n" + root.sensor_statuses[1].status
+            halign: 'center'
+            size_hint_x: 1/5
+            size_hint_y: 3/12
+            canvas.before:
+                Color:
+                    r: root.sensor_statuses[1].color.r
+                    g: root.sensor_statuses[1].color.g
+                    b: root.sensor_statuses[1].color.b
+                    a: root.sensor_statuses[1].color.a
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+        Label:
+            text: root.sensor_statuses[2].name + "\n" + root.sensor_statuses[2].status
+            halign: 'center'
+            size_hint_x: 1/5
+            size_hint_y: 3/12
+            canvas.before:
+                Color:
+                    r: root.sensor_statuses[2].color.r
+                    g: root.sensor_statuses[2].color.g
+                    b: root.sensor_statuses[2].color.b
+                    a: root.sensor_statuses[2].color.a
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+        Label:
+            text: root.sensor_statuses[3].name + "\n" + root.sensor_statuses[3].status
+            halign: 'center'
+            size_hint_x: 1/5
+            size_hint_y: 3/12
+            canvas.before:
+                Color:
+                    r: root.sensor_statuses[3].color.r
+                    g: root.sensor_statuses[3].color.g
+                    b: root.sensor_statuses[3].color.b
+                    a: root.sensor_statuses[3].color.a
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+        Label:
+            text: root.sensor_statuses[4].name + "\n" + root.sensor_statuses[4].status
+            halign: 'center'
+            size_hint_x: 1/5
+            size_hint_y: 3/12
+            canvas.before:
+                Color:
+                    r: root.sensor_statuses[4].color.r
+                    g: root.sensor_statuses[4].color.g
+                    b: root.sensor_statuses[4].color.b
+                    a: root.sensor_statuses[4].color.a
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+        Label:
+            text: "Tuotantoer\u00E4"
+            text_size: self.size
+            halign: 'left'
+            size_hint_x: 1
+            size_hint_y: 1/12
+        Label:
+            text: root.batch_name
+            text_size: self.size
+            valign: 'top'
+            halign: 'left'
+            size_hint_x: 1
+            size_hint_y: 2/12
+        TextInput:
+            text: root.batch_code
+            multiline: False
+            on_text_validate: root.on_batch_code_input(args[0].text)
+            size_hint_x: 1
+            size_hint_y: 1/12
+        Label:
+            text: "Ty\u00F6ntekij\u00F6iden lukum\u00E4\u00E4r\u00E4"
+            text_size: self.size
+            halign: 'left'
+            size_hint_x: 1
+            size_hint_y: 1/12
+        Button:
+            font_size: 70
+            text: "0"
+            size_hint_x: 1/5
+            size_hint_y: 3/12
+            disabled: root.num_workers == 0
+            on_press: root.num_workers = 0
+        Button:
+            font_size: 70
+            text: "1"
+            size_hint_x: 1/5
+            size_hint_y: 3/12
+            disabled: root.num_workers == 1
+            on_press: root.num_workers = 1
+        Button:
+            font_size: 70
+            text: "2"
+            size_hint_x: 1/5
+            size_hint_y: 3/12
+            disabled: root.num_workers == 2
+            on_press: root.num_workers = 2
+        Button:
+            font_size: 70
+            text: "3"
+            size_hint_x: 1/5
+            size_hint_y: 3/12
+            disabled: root.num_workers == 3
+            on_press: root.num_workers = 3
+        Button:
+            font_size: 70
+            text: "4"
+            size_hint_x: 1/5
+            size_hint_y: 3/12
+            disabled: root.num_workers == 4
+            on_press: root.num_workers = 4
