@@ -1,0 +1,10 @@
+{
+	"python.pythonPath": "C:\\Users\\Ilmo Euro\\.virtualenvs\\reifer-monitor-server-VgheR_vA\\scripts\\python.exe",
+	"python.linting.mypyEnabled": true,
+    "python.linting.enabled": true,
+    "python.unitTest.nosetestsEnabled": true,
+    "python.unitTest.nosetestArgs": [],
+    "licenser.author": "Metatavu Oy",
+    "licenser.license": "AGPLv3",
+    "licenser.projectName": "Reifer-Monitor",
+}
