@@ -18,6 +18,7 @@
 from typing import NamedTuple
 from typing import List
 from typing import Optional
+from typing import Callable
 from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.properties import ObjectProperty
@@ -57,12 +58,12 @@ class MonitorDeviceWidget(Widget):
 
     def __init__(self, **kwargs) -> None:
         super().__init__()
-        model = Device(
-            BlinkingSensorSystem(
-                [Sensor(1, "Sensor 1", True),
-                 Sensor(2, "Sensor 2", False),
-                 Sensor(3, "Sensor 3", False),
-                 Sensor(4, "Sensor 4", True)]))
+        self.blinker = BlinkingSensorSystem([
+            Sensor(1, "Sensor 1", True),
+            Sensor(2, "Sensor 2", False),
+            Sensor(3, "Sensor 3", False),
+            Sensor(4, "Sensor 4", True)])
+        model = Device(self.blinker)
         self.num_workers = model.num_workers
         self.on_sensors_model_change(model.sensors)
         model.add_num_workers_changed_listener(self.on_num_workers_model_change)
@@ -70,6 +71,9 @@ class MonitorDeviceWidget(Widget):
         model.add_workstation_state_changed_listener(self.on_workstation_state_model_change)
         self.model = model
         self.bind(num_workers=self.on_num_workers_change)
+
+    def stop(self) -> None:
+        self.blinker.stop()
 
     def on_num_workers_change(self, instance: Widget, value: int) -> None:
         self.model.num_workers = value
@@ -119,7 +123,11 @@ class MonitorDeviceWidget(Widget):
 
 class MonitorApp(App):
     def build(self):
-        return MonitorDeviceWidget()
+        self.widget = MonitorDeviceWidget()
+        return self.widget
+
+    def on_stop(self):
+        self.widget.stop()
 
 
 if __name__ == '__main__':

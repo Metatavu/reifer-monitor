@@ -27,10 +27,11 @@ class BlinkingSensorSystem(SensorSystem):
     _sensor_change_listeners: List[Callable[[Sensor], None]]
 
     def __init__(self, sensors: List[Sensor]) -> None:
+        self.running = True
         self._sensors = sensors
         self._sensor_change_listeners = []
         def blinker():
-            while True:
+            while self.running:
                 time.sleep(1)
                 i = random.randrange(0, len(self._sensors))
                 old_sensor = self._sensors[i]
@@ -48,3 +49,6 @@ class BlinkingSensorSystem(SensorSystem):
             self,
             listener: Callable[[Sensor], None]) -> None:
         self._sensor_change_listeners.append(listener)
+
+    def stop(self) -> None:
+        self.running = False

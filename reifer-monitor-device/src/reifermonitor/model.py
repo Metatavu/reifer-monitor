@@ -53,7 +53,9 @@ class Device:
     _num_workers_changed_listeners: List[Callable[[int], None]]
     _sensors_changed_listeners: List[Callable[[List[Sensor]], None]]
 
-    def __init__(self, sensor_system: SensorSystem) -> None:
+    def __init__(
+            self,
+            sensor_system: SensorSystem) -> None:
         self._sensor_system = sensor_system
         self._num_workers = 0
         self._workstation_state_changed_listeners = []
