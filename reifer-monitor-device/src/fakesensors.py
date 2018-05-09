@@ -15,8 +15,8 @@
 
 from typing import List
 from typing import Callable
-from reifermonitor.model import Sensor
-from reifermonitor.model import SensorSystem
+from client_model import Sensor
+from client_model import SensorSystem
 import random
 import threading
 import time
@@ -30,7 +30,7 @@ class BlinkingSensorSystem(SensorSystem):
         self.running = True
         self._sensors = sensors
         self._sensor_change_listeners = []
-        def blinker():
+        def blinker() -> None:
             while self.running:
                 time.sleep(1)
                 i = random.randrange(0, len(self._sensors))

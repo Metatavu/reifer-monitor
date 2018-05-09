@@ -1,0 +1,10 @@
+logging_level="DEBUG"
+
+db_provider="sqlite"
+db_filename=":memory:"
+db_create=true
+db_migrations_dir="../migrations"
+db_debug=true
+db_startup="make_tables"
+
+bind_url="tcp://*:5555"

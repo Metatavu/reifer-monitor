@@ -19,6 +19,8 @@ from typing import NamedTuple
 from typing import List
 from typing import Optional
 from typing import Callable
+from typing import Dict
+from typing import Any
 from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.properties import ObjectProperty
@@ -27,10 +29,10 @@ from kivy.properties import StringProperty
 from kivy.properties import ListProperty
 from kivy.config import Config
 from kivy.graphics import Color
-from reifermonitor.fakesensors import BlinkingSensorSystem
-from reifermonitor.model import Device
-from reifermonitor.model import Sensor
-from reifermonitor.model import WorkstationState
+from fakesensors import BlinkingSensorSystem
+from client_model import Device
+from client_model import Sensor
+from client_model import WorkstationState
 
 
 class SensorStatus(NamedTuple):
@@ -56,7 +58,7 @@ class MonitorDeviceWidget(Widget):
         SensorStatus("", "", Color(0,0,0,0))
     ])
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Dict[str, Any]) -> None:
         super().__init__()
         self.blinker = BlinkingSensorSystem([
             Sensor(1, "Sensor 1", True),
@@ -121,12 +123,12 @@ class MonitorDeviceWidget(Widget):
         return SensorStatus(sensor.name, status, color)
 
 
-class MonitorApp(App):
-    def build(self):
+class MonitorApp(App): # type: ignore
+    def build(self) -> Any:
         self.widget = MonitorDeviceWidget()
         return self.widget
 
-    def on_stop(self):
+    def on_stop(self) -> None:
         self.widget.stop()
 
 

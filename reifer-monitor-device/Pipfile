@@ -5,6 +5,9 @@ name = "pypi"
 
 [packages]
 pyzmq = "*"
+yoyo-migrations = "*"
+toml = "*"
+pony = "*"
 kivy = "*"
 pillow = "*"
 docutils = "*"

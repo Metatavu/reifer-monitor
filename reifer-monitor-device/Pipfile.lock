@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "2344e23ff1b25635e5c5e2bc497db9ee169c5d8a3d3a077ebf91c70ea7ff4da4"
+            "sha256": "55af22bc870b26be4aff66a1ad209f4180f09f700935e4829ec1a81a6533dc93"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -43,6 +43,12 @@
                 "sha256:8c7309c718f94b3a625cb648ace320157ad16ff131ae0af362c9f21b80ef6ec4"
             ],
             "version": "==2.6"
+        },
+        "iniherit": {
+            "hashes": [
+                "sha256:06d90849ff0c4fadb7e255ce31e7c8e188a99af90d761435c72b79b36adbb67a"
+            ],
+            "version": "==0.3.9"
         },
         "kivy": {
             "hashes": [
@@ -147,6 +153,13 @@
             "index": "pypi",
             "version": "==5.1.0"
         },
+        "pony": {
+            "hashes": [
+                "sha256:114b3e075e79de27a729bbc59812290334dd82644d41120df9d556336cffa67c"
+            ],
+            "index": "pypi",
+            "version": "==0.7.3"
+        },
         "pygments": {
             "hashes": [
                 "sha256:78f3f434bcc5d6ee09020f92ba487f95ba50f1e3ef83ae96b9d5ffa1bab25c5d",
@@ -162,6 +175,12 @@
             ],
             "index": "pypi",
             "version": "==223"
+        },
+        "python-slugify": {
+            "hashes": [
+                "sha256:5dbb360b882b2dabe0471a1a92f604504d83c2a73c71f2098d004ab62e695534"
+            ],
+            "version": "==1.2.5"
         },
         "pywin32": {
             "hashes": [
@@ -212,12 +231,40 @@
             ],
             "version": "==2.18.4"
         },
+        "six": {
+            "hashes": [
+                "sha256:70e8a77beed4562e7f14fe23a786b54f6296e34344c23bc42f07b15018ff98e9",
+                "sha256:832dc0e10feb1aa2c68dcc57dbb658f1c7e65b9b61af69048abc87a2db00a0eb"
+            ],
+            "version": "==1.11.0"
+        },
+        "toml": {
+            "hashes": [
+                "sha256:8e86bd6ce8cc11b9620cb637466453d94f5d57ad86f17e98a98d1f73e3baab2d"
+            ],
+            "index": "pypi",
+            "version": "==0.9.4"
+        },
+        "unidecode": {
+            "hashes": [
+                "sha256:72f49d3729f3d8f5799f710b97c1451c5163102e76d64d20e170aedbbd923582",
+                "sha256:8c33dd588e0c9bc22a76eaa0c715a5434851f726131bd44a6c26471746efabf5"
+            ],
+            "version": "==1.0.22"
+        },
         "urllib3": {
             "hashes": [
                 "sha256:06330f386d6e4b195fbfc736b297f58c5a892e4440e54d294d7004e3a9bbea1b",
                 "sha256:cc44da8e1145637334317feebd728bd869a35285b93cbb4cca2577da7e62db4f"
             ],
             "version": "==1.22"
+        },
+        "yoyo-migrations": {
+            "hashes": [
+                "sha256:0141541d1738c2a30ca3c4b7e124c09513565c0fbd48d25fb057a09b979e7eeb"
+            ],
+            "index": "pypi",
+            "version": "==5.0.5"
         }
     },
     "develop": {
