@@ -12,11 +12,13 @@
 # 
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-import zmq
 from typing import Any
-from message import BatchNameQueryRequest
-from message import BatchNameQueryResponse
-from message import ErrorResponse
+from logging import error
+
+import zmq
+
+from message import (BatchNameQueryRequest, BatchNameQueryResponse,
+                     ErrorResponse)
 
 
 class ServerError(Exception):
@@ -35,7 +37,14 @@ class ServerConnection:
         self.socket.send_pyobj(message)
         result = self.socket.recv_pyobj()
         if isinstance(result, ErrorResponse):
-            raise ServerError(f"{result.error_type}: {result.error_message}")
+            tb = '\n'.join(result.stack_summary.format())
+            args = result.exception.args
+            if len(args) == 1:
+                args = (f"{args[0]}\n\n{tb}",)
+            else:
+                args = args + (tb,)
+            result.exception.args = args
+            raise result.exception
         return result
 
     def connect(self) -> None:

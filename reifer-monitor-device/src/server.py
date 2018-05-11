@@ -12,27 +12,27 @@
 # 
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 # pylint: disable=E1101
 # THIS IS FOR PROTOTYPE USE ONLY, NO SECURITY WHATSOEVER
-from abc import ABCMeta
-from abc import abstractmethod
-from typing import Any
-from typing import Tuple
-from typing import Optional
-from typing import Dict
-from pony import orm
-import zmq
+
+import logging
+import os
 import re
 import sys
-import os
+from abc import ABCMeta, abstractmethod
+from traceback import extract_tb
+from typing import Any, Dict, Optional, Tuple, TYPE_CHECKING
+
 import toml
 import yoyo
-import logging
-from message import ErrorResponse
-from message import BatchNameQueryRequest
-from message import BatchNameQueryResponse
+import zmq
+from sqlalchemy import Column, ForeignKey, Integer, String, create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
 
+from message import (BatchAssociationRequest, BatchAssociationResponse,
+                     BatchNameQueryRequest, BatchNameQueryResponse,
+                     ErrorResponse)
 
 _CONFIG: Dict[str, Any]
 
@@ -57,20 +57,35 @@ logging.basicConfig(level=getattr(logging, _CONFIG['logging_level']),
                     format="%(asctime)s - %(module)s:%(message)s")
 
 
-_DB: orm.Database = orm.Database()
+if TYPE_CHECKING:
+    class BaseEntity:
+        pass
+else:
+    BaseEntity = declarative_base()
 
 
-class Batch(_DB.Entity): # type: ignore
-    id: int = orm.PrimaryKey(int, auto=True)
-    code: str = orm.Required(str, unique=True)
-    name: str = orm.Required(str)
+class Batch(BaseEntity):
+    id: int = Column(Integer, primary_key=True)
+    code: Optional[str] = Column(String(255))
+    name: str = Column(String(255), nullable=False)
 
-    @classmethod
-    def find_by_code(cls, code: str) -> Optional[Batch]:
-        with orm.db_session:
-            result = cls.get(code=code)
-            assert isinstance(result, (Batch, type(None)))
-            return result
+
+def find_batch_by_code(code: str) -> Optional[Batch]:
+    with orm.db_session:
+        Batch.bogus()
+        result = Batch.get(code=code)
+        assert isinstance(result, (Batch, type(None)))
+        return result
+
+
+def associate_batch(code: str, name: str) -> Batch:
+    with orm.db_session:
+        old_batch = Batch.get(code=code)
+        if isinstance(old_batch, Batch):
+            old_batch.delete()
+    with orm.db_session:
+        batch = Batch(code=code, name=name)
+        return batch
 
 
 def run_server(bind_address: str) -> None:
@@ -83,28 +98,29 @@ def run_server(bind_address: str) -> None:
         try:
             reply = execute(message)
         except Exception as e:
-            print(e, file=sys.stdout)
-            if len(e.args) == 1:
-                msg, = e.args
-            else:
-                msg = e.args
-            socket.send_pyobj(ErrorResponse(str(type(e)), str(msg)))
+            tb = extract_tb(sys.exc_info()[2])
+            socket.send_pyobj(ErrorResponse(e, tb))
         else:
             socket.send_pyobj(reply)
 
 
 def handle_batch_name_query(message: BatchNameQueryRequest) -> BatchNameQueryResponse:
-    batch = Batch.find_by_code(message.batch_code)
+    batch = find_batch_by_code(message.batch_code)
     if batch is None:
         raise ValueError("batch not found")
     return BatchNameQueryResponse(batch.name)
+
+
+def handle_batch_association(message: BatchAssociationRequest) -> BatchAssociationResponse:
+    batch = associate_batch(message.batch_code, message.batch_name)
+    return BatchAssociationResponse(batch.id)
 
 
 def execute(message: Any) -> Any:
     if isinstance(message, BatchNameQueryRequest):
         return handle_batch_name_query(message)
     else:
-        return ErrorResponse("ValueError", "invalid message")
+        raise ValueError("invalid message")
 
 
 def init() -> None:

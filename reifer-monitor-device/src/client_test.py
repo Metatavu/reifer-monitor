@@ -15,10 +15,10 @@
 
 from typing import Callable
 from typing import List
-from reifermonitor.model import Sensor
-from reifermonitor.model import SensorSystem
-from reifermonitor.model import Device
-from reifermonitor.model import WorkstationState
+from client_model import Sensor
+from client_model import SensorSystem
+from client_model import Device
+from client_model import WorkstationState
 
 
 class FakeSensorSystem(SensorSystem):
