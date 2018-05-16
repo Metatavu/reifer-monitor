@@ -19,6 +19,7 @@ from typing import NamedTuple
 from abc import ABCMeta
 from abc import abstractmethod
 from enum import Enum
+from serverconnection import ServerConnection
 
 
 class Sensor(NamedTuple):
@@ -47,20 +48,33 @@ class WorkstationState(Enum):
 
 
 class Device:
+    _workstation_code: str
+    _batch_code: str
+    _batch_name: str
+    _old_workstation_state: WorkstationState
     _sensor_system: SensorSystem
+    _server_connection: ServerConnection
     _num_workers: int
     _workstation_state_changed_listeners: List[Callable[[WorkstationState], None]]
     _num_workers_changed_listeners: List[Callable[[int], None]]
     _sensors_changed_listeners: List[Callable[[List[Sensor]], None]]
+    _batch_name_changed_listeners: List[Callable[[str], None]]
 
     def __init__(
             self,
-            sensor_system: SensorSystem) -> None:
+            workstation_code: str,
+            sensor_system: SensorSystem,
+            server_connection: ServerConnection) -> None:
+        self._workstation_code = workstation_code
+        self._old_workstation_state = WorkstationState.EMPTY
         self._sensor_system = sensor_system
+        self._server_connection = server_connection
         self._num_workers = 0
         self._workstation_state_changed_listeners = []
         self._num_workers_changed_listeners = []
         self._sensors_changed_listeners = []
+        self._batch_name_changed_listeners = []
+        self._batch_code = ""
         sensor_system.add_sensor_change_listener(self._on_sensor_changed)
 
     def add_workstation_state_changed_listener(
@@ -78,13 +92,27 @@ class Device:
             listener: Callable[[List[Sensor]], None]) -> None:
         self._sensors_changed_listeners.append(listener)
 
+    def add_batch_name_changed_listener(
+            self,
+            listener: Callable[[str], None]) -> None:
+        self._batch_name_changed_listeners.append(listener)
+
     def _on_sensor_changed(self, new_sensor: Sensor) -> None:
         sensors = self._sensor_system.sensors
         for sensor_listener in self._sensors_changed_listeners:
             sensor_listener(sensors)
         workstation_state = self.workstation_state
+        self._notify_work_run(workstation_state)
         for workstation_listener in self._workstation_state_changed_listeners:
             workstation_listener(workstation_state)
+
+    def _notify_work_run(self, workstation_state: WorkstationState) -> None:
+        if workstation_state != self._old_workstation_state:
+            if workstation_state == WorkstationState.ACTIVE:
+                self._server_connection.start_work_run(self._workstation_code)
+            elif self._old_workstation_state == WorkstationState.ACTIVE:
+                self._server_connection.stop_work_run(self._workstation_code)
+        self._old_workstation_state = workstation_state
 
     @property
     def num_workers(self) -> int:
@@ -94,13 +122,18 @@ class Device:
     def num_workers(self, num_workers: int) -> None:
         if num_workers < 0:
             raise ValueError(f"num_workers must be >=0, was {num_workers}")
-
         if num_workers > 4:
             raise ValueError(f"num_workers must be <=4, was {num_workers}")
-
+        old_workers = self._num_workers
         self._num_workers = num_workers
-
+        if num_workers != old_workers:
+            self._server_connection.stop_activity_period(self._workstation_code)
+            if num_workers > 0:
+                self._server_connection.start_activity_period(
+                    self._workstation_code, 
+                    num_workers)
         workstation_state = self.workstation_state
+        self._notify_work_run(workstation_state)
         for listener in self._workstation_state_changed_listeners:
             listener(workstation_state)
     
@@ -117,3 +150,27 @@ class Device:
     @property
     def sensors(self) -> List[Sensor]:
         return self._sensor_system.sensors
+
+    @property
+    def batch_code(self) -> str:
+        return self._batch_code
+
+    @batch_code.setter
+    def batch_code(self, batch_code: str) -> None:
+        if batch_code != "" and batch_code != self._batch_code:
+            name = self._server_connection.get_batch_name(batch_code)
+            if name is None:
+                name = ""
+            self._batch_name = name
+            for listener in self._batch_name_changed_listeners:
+                listener(name)
+        if batch_code != self._batch_code:
+            self._server_connection.stop_work(self._workstation_code)
+            if batch_code != "":
+                self._server_connection.start_work(
+                    self._workstation_code,
+                    batch_code)
+        self._batch_code = batch_code
+
+
+# vim: tw=80 sw=4 ts=4 expandtab:

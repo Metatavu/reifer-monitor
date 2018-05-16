@@ -33,6 +33,7 @@ from fakesensors import BlinkingSensorSystem
 from client_model import Device
 from client_model import Sensor
 from client_model import WorkstationState
+from serverconnection import ServerConnection
 
 
 class SensorStatus(NamedTuple):
@@ -65,12 +66,15 @@ class MonitorDeviceWidget(Widget):
             Sensor(2, "Sensor 2", False),
             Sensor(3, "Sensor 3", False),
             Sensor(4, "Sensor 4", True)])
-        model = Device(self.blinker)
+        server_connection = ServerConnection("tcp://localhost:5555")
+        server_connection.connect()
+        model = Device("WS", self.blinker, server_connection)
         self.num_workers = model.num_workers
         self.on_sensors_model_change(model.sensors)
         model.add_num_workers_changed_listener(self.on_num_workers_model_change)
         model.add_sensors_changed_listener(self.on_sensors_model_change)
         model.add_workstation_state_changed_listener(self.on_workstation_state_model_change)
+        model.add_batch_name_changed_listener(self.on_batch_name_model_change)
         self.model = model
         self.bind(num_workers=self.on_num_workers_change)
 
@@ -81,6 +85,7 @@ class MonitorDeviceWidget(Widget):
         self.model.num_workers = value
 
     def on_batch_code_input(self, value: str) -> None:
+        self.model.batch_code = value
         self.batch_code = value
 
     def on_num_workers_model_change(self, num_workers: int) -> None:
@@ -90,6 +95,9 @@ class MonitorDeviceWidget(Widget):
         aux: List[Optional[Sensor]] = [None] * 5
         aux[:len(sensors)] = sensors
         self.sensor_statuses = [self._compute_sensor_status(x) for x in aux]
+
+    def on_batch_name_model_change(self, batch_name: str) -> None:
+        self.batch_name = batch_name
 
     def on_workstation_state_model_change(self, state: WorkstationState) -> None:
         if state == WorkstationState.EMPTY:
@@ -123,7 +131,7 @@ class MonitorDeviceWidget(Widget):
         return SensorStatus(sensor.name, status, color)
 
 
-class MonitorApp(App): # type: ignore
+class MonitorApp(App):
     def build(self) -> Any:
         self.widget = MonitorDeviceWidget()
         return self.widget

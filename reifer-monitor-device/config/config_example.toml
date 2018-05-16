@@ -1,7 +1,7 @@
 logging_level="DEBUG"
 
 db_provider="sqlite"
-db_filename=":memory:"
+db_filename="reifer.db"
 db_create=true
 db_migrations_dir="../migrations"
 db_debug=true

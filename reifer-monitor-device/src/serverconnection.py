@@ -12,13 +12,13 @@
 # 
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# pylint: disable=W0614
 from typing import Any
 from logging import error
 
 import zmq
 
-from message import (BatchNameQueryRequest, BatchNameQueryResponse,
-                     ErrorResponse)
+from message import *
 
 
 class ServerError(Exception):
@@ -54,3 +54,39 @@ class ServerConnection:
         resp = self._communicate(BatchNameQueryRequest(batch_code))
         assert isinstance(resp, BatchNameQueryResponse)
         return resp.batch_name
+
+    def associate_batch(self, batch_code: str, batch_name: str) -> int:
+        resp = self._communicate(BatchAssociationRequest(batch_code, batch_name))
+        assert isinstance(resp, BatchAssociationResponse)
+        return resp.batch_id
+
+    def start_activity_period(self, workstation_code: str, num_workers: int) -> None:
+        resp = self._communicate(
+            StartActivityPeriodRequest(workstation_code, num_workers))
+        assert isinstance(resp, StartActivityPeriodResponse)
+
+    def stop_activity_period(self, workstation_code: str) -> None:
+        resp = self._communicate(
+            StopActivityPeriodRequest(workstation_code))
+        assert isinstance(resp, StopActivityPeriodResponse)
+
+    def start_work_run(self, workstation_code: str) -> None:
+        resp = self._communicate(StartWorkRunRequest(workstation_code))
+        assert isinstance(resp, StartWorkRunResponse)
+
+    def stop_work_run(self, workstation_code: str) -> None:
+        resp = self._communicate(StopWorkRunRequest(workstation_code))
+        assert isinstance(resp, StopWorkRunResponse)
+
+    def start_work(self, workstation_code: str, batch_code: str) -> None:
+        resp = self._communicate(StartWorkRequest(workstation_code, batch_code))
+        assert isinstance(resp, StartWorkResponse)
+
+    def stop_work(self, workstation_code: str) -> None:
+        resp = self._communicate(StopWorkRequest(workstation_code))
+        assert isinstance(resp, StopWorkResponse)
+
+
+
+
+

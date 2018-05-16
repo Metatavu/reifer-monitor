@@ -68,3 +68,5 @@ def test_sensor_change_notified() -> None:
     subject.add_sensors_changed_listener(sensors_changed)
     system.fake_sensor_change_listener(Sensor(1, "Sensor", True))
     assert sensors == [Sensor(1, "Sensor", True)]
+
+# vim: tw=80 sw=4 ts=4 expandtab:
