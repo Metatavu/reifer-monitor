@@ -77,6 +77,7 @@ class MonitorDeviceWidget(Widget):
         model.add_batch_name_changed_listener(self.on_batch_name_model_change)
         self.model = model
         self.bind(num_workers=self.on_num_workers_change)
+        self.on_workstation_state_model_change(model.workstation_state)
 
     def stop(self) -> None:
         self.blinker.stop()

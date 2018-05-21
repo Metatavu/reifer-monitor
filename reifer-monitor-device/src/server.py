@@ -238,8 +238,14 @@ class Server:
         sess = self.session()
         try:
             ws = self.find_workstation_by_code(sess, workstation_code)
-            # TODO: associate with batch
-            run = WorkRun(ws, None)
+            work = (sess.query(Work)
+                      .filter_by(workstation_id=ws.id)
+                      .order_by(desc(Work.start))
+                      .first())
+            if work is None:
+                run = WorkRun(ws, None)
+            else:
+                run = WorkRun(ws, work.batch)
             sess.add(run)
             sess.commit()
         finally:
