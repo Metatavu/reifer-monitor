@@ -1,0 +1,56 @@
+#:kivy 1.10.0
+
+<CardManagerWidget>:
+    canvas.before:
+        Color:
+            rgba: 0, 0, 0.7, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    StackLayout:
+        width: root.width
+        height: root.height
+        cols: 5
+        padding: 5
+        Label:
+            text: "HUOM! Varmista ett\u00E4 ID-RW-NO-Drive-E.exe on k\u00E4ynniss\u00E4 ja lukijan valo vilkkuu!"
+            text_size: self.size
+            font_size: 24
+            halign: 'left'
+            valign: 'center'
+            size_hint_x: 1
+            size_hint_y: 2/9
+        Label:
+            text: "Tuotantoer\u00E4"
+            text_size: self.size
+            halign: 'left'
+            size_hint_x: 1
+            size_hint_y: 1/9
+        TextInput:
+            text: root.batch_name
+            multiline: False
+            on_text: root.batch_name = args[1]
+            size_hint_x: 1
+            size_hint_y: 1/9
+        Label:
+            text: "Koodi (%d/10)" % len(root.batch_code)
+            text_size: self.size
+            halign: 'left'
+            size_hint_x: 1
+            size_hint_y: 1/9
+        ValidatingTextInput:
+            text: root.batch_code
+            multiline: False
+            on_text: root.batch_code = args[1]
+            size_hint_x: 1
+            size_hint_y: 1/9
+        Label:
+            text: ""
+            size_hint_x: 1
+            size_hint_y: 1/18
+        Button:
+            font_size: 70
+            text: "Liit\u00E4"
+            size_hint_x: 1
+            size_hint_y: 5/18
+            on_press: root.on_associate()

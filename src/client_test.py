@@ -19,6 +19,7 @@ from client_model import Sensor
 from client_model import SensorSystem
 from client_model import Device
 from client_model import WorkstationState
+from serverconnection import ServerConnection
 
 
 class FakeSensorSystem(SensorSystem):
@@ -39,20 +40,31 @@ class FakeSensorSystem(SensorSystem):
         self.fake_sensor_change_listener = listener
 
 
+class FakeServerConnection(ServerConnection):
+    def __init__(self) -> None:
+        raise NotImplementedError()
+
+
 def test_workstation_state_empty() -> None:
-    subject = Device(FakeSensorSystem([], lambda _: None))
+    subject = Device("WS",
+                     FakeSensorSystem([], lambda _: None),
+                     FakeServerConnection())
     assert subject.workstation_state == WorkstationState.EMPTY
 
 def test_workstation_state_idle() -> None:
-    subject = Device(FakeSensorSystem([], lambda _: None))
+    subject = Device("WS",
+                     FakeSensorSystem([], lambda _: None),
+                     FakeServerConnection())
     subject.num_workers = 1
     assert subject.workstation_state == WorkstationState.IDLE
 
 def test_workstation_state_active() -> None:
     subject = Device(
+        "WS",
         FakeSensorSystem(
             [Sensor(1, "Sensor", True)],
-            lambda _: None))
+            lambda _: None),
+        FakeServerConnection())
     subject.num_workers = 1
     assert subject.workstation_state == WorkstationState.ACTIVE
 
@@ -64,7 +76,7 @@ def test_sensor_change_notified() -> None:
     system = FakeSensorSystem(
         [Sensor(1, "Sensor", True)],
         lambda _: None)
-    subject = Device(system)
+    subject = Device("WS", system, FakeServerConnection())
     subject.add_sensors_changed_listener(sensors_changed)
     system.fake_sensor_change_listener(Sensor(1, "Sensor", True))
     assert sensors == [Sensor(1, "Sensor", True)]

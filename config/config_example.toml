@@ -8,3 +8,4 @@ db_debug=true
 db_startup="make_tables"
 
 bind_url="tcp://*:5555"
+connect_url="tcp://localhost:5555"

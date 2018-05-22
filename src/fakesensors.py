@@ -13,32 +13,35 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import List
-from typing import Callable
-from client_model import Sensor
-from client_model import SensorSystem
 import random
 import threading
 import time
+from typing import Any, Callable, List
+
+from client_model import Sensor, SensorSystem
 
 
 class BlinkingSensorSystem(SensorSystem):
     _sensors: List[Sensor]
     _sensor_change_listeners: List[Callable[[Sensor], None]]
 
-    def __init__(self, sensors: List[Sensor]) -> None:
+    def __init__(self,
+            sensors: List[Sensor],
+            schedule: Callable[[Callable[..., None]], None]) -> None:
         self.running = True
         self._sensors = sensors
         self._sensor_change_listeners = []
+        def update_sensors(*args: Any) -> None:
+            i = random.randrange(0, len(self._sensors))
+            old_sensor = self._sensors[i]
+            new_sensor = old_sensor._replace(active=not old_sensor.active)
+            self._sensors[i] = new_sensor
+            for listener in self._sensor_change_listeners:
+                listener(new_sensor)
         def blinker() -> None:
             while self.running:
                 time.sleep(1)
-                i = random.randrange(0, len(self._sensors))
-                old_sensor = self._sensors[i]
-                new_sensor = old_sensor._replace(active=not old_sensor.active)
-                self._sensors[i] = new_sensor
-                for listener in self._sensor_change_listeners:
-                    listener(new_sensor)
+                schedule(update_sensors)
         threading.Thread(target=blinker).start()
 
     @property

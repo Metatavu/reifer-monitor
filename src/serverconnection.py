@@ -13,8 +13,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # pylint: disable=W0614
-from typing import Any
 from logging import error
+from typing import Any, Optional
 
 import zmq
 
@@ -50,7 +50,7 @@ class ServerConnection:
     def connect(self) -> None:
         self.socket.connect(self.address)
 
-    def get_batch_name(self, batch_code: str) -> str:
+    def get_batch_name(self, batch_code: str) -> Optional[str]:
         resp = self._communicate(BatchNameQueryRequest(batch_code))
         assert isinstance(resp, BatchNameQueryResponse)
         return resp.batch_name
@@ -85,8 +85,3 @@ class ServerConnection:
     def stop_work(self, workstation_code: str) -> None:
         resp = self._communicate(StopWorkRequest(workstation_code))
         assert isinstance(resp, StopWorkResponse)
-
-
-
-
-

@@ -12,27 +12,25 @@
 # 
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 # pylint: disable=E0611
 # -*- coding: utf-8 -*-
-from typing import NamedTuple
-from typing import List
-from typing import Optional
-from typing import Callable
-from typing import Dict
-from typing import Any
+
+import os
+import sys
+from typing import Any, Callable, Dict, List, NamedTuple, Optional
+
+import toml
 from kivy.app import App
-from kivy.uix.widget import Widget
-from kivy.properties import ObjectProperty
-from kivy.properties import NumericProperty
-from kivy.properties import StringProperty
-from kivy.properties import ListProperty
 from kivy.config import Config
+from kivy.clock import Clock
 from kivy.graphics import Color
+from kivy.properties import (ListProperty, NumericProperty, ObjectProperty,
+                             StringProperty)
+from kivy.uix.widget import Widget
+from kivy.uix.textinput import TextInput
+
+from client_model import Device, Sensor, WorkstationState
 from fakesensors import BlinkingSensorSystem
-from client_model import Device
-from client_model import Sensor
-from client_model import WorkstationState
 from serverconnection import ServerConnection
 
 
@@ -40,6 +38,23 @@ class SensorStatus(NamedTuple):
     name: str
     status: str
     color: Color
+
+
+class ConfigurationException(Exception):
+    pass
+
+
+class FocusingTextInput(TextInput):
+    def on_parent(self, widget: Widget, parent: Widget) -> None:
+        self.focus = True
+
+    def on_text_validate(self, *args: Any, **kwargs: Any) -> None:
+        super().on_text_validate(*args, **kwargs)
+        self.text = ""
+        @Clock.schedule_once
+        # pylint: disable=W0612
+        def refocus(*args: Any) -> None:
+            self.focus = True
 
 
 class MonitorDeviceWidget(Widget):
@@ -65,8 +80,12 @@ class MonitorDeviceWidget(Widget):
             Sensor(1, "Sensor 1", True),
             Sensor(2, "Sensor 2", False),
             Sensor(3, "Sensor 3", False),
-            Sensor(4, "Sensor 4", True)])
-        server_connection = ServerConnection("tcp://localhost:5555")
+            Sensor(4, "Sensor 4", True)],
+            Clock.schedule_once)
+        config = self.make_config()
+        if "connect_url" not in config:
+            raise ConfigurationException("`connect_url` not set in configuration")
+        server_connection = ServerConnection(config["connect_url"])
         server_connection.connect()
         model = Device("WS", self.blinker, server_connection)
         self.num_workers = model.num_workers
@@ -78,6 +97,21 @@ class MonitorDeviceWidget(Widget):
         self.model = model
         self.bind(num_workers=self.on_num_workers_change)
         self.on_workstation_state_model_change(model.workstation_state)
+
+    def make_config(self) -> Dict[str, Any]:
+        if 'REIFER_MONITOR_CONFIG' in os.environ:
+            conf = toml.load(os.environ['REIFER_MONITOR_CONFIG'])
+            assert isinstance(conf, dict)
+            return conf
+        elif len(sys.argv) >= 2:
+            conf = toml.load(sys.argv[1])
+            assert isinstance(conf, dict)
+            return conf
+        else:
+            raise ConfigurationException(
+                "Configuration file location not set. " +
+                "Pass it as argv[1] or REIFER_MONITOR_CONFIG " +
+                "environment variable.")
 
     def stop(self) -> None:
         self.blinker.stop()

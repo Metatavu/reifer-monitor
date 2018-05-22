@@ -1,12 +1,12 @@
-from typing import NamedTuple
-from typing import Any
 from traceback import StackSummary
+from typing import Any, NamedTuple, Optional
+
 
 class BatchNameQueryRequest(NamedTuple):
     batch_code: str
 
 class BatchNameQueryResponse(NamedTuple):
-    batch_name: str
+    batch_name: Optional[str]
 
 class BatchAssociationRequest(NamedTuple):
     batch_code: str

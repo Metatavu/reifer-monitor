@@ -277,7 +277,7 @@ class Server:
         self.ensure_workstation(workstation_code)
         batch = self.find_batch_by_code(batch_code)
         if batch is None:
-            raise ValueError("Batch doesn't exist")
+            return
         print(f"Starting work on {workstation_code} for {batch_code}")
         sess = self.session()
         try:
@@ -327,9 +327,7 @@ class Server:
 
     def handle_batch_name_query(self, message: BatchNameQueryRequest) -> BatchNameQueryResponse:
         batch = self.find_batch_by_code(message.batch_code)
-        if batch is None:
-            raise ValueError("batch not found")
-        return BatchNameQueryResponse(batch.name)
+        return BatchNameQueryResponse(batch.name if batch is not None else None)
 
     def handle_batch_association(self, message: BatchAssociationRequest) -> BatchAssociationResponse:
         batch = self.associate_batch(message.batch_code, message.batch_name)

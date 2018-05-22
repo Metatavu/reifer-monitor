@@ -48,12 +48,15 @@ class WorkstationState(Enum):
 
 
 class Device:
+    # dependencies
+    _sensor_system: SensorSystem
+    _server_connection: ServerConnection
+
+    # state
     _workstation_code: str
     _batch_code: str
     _batch_name: str
     _old_workstation_state: WorkstationState
-    _sensor_system: SensorSystem
-    _server_connection: ServerConnection
     _num_workers: int
     _workstation_state_changed_listeners: List[Callable[[WorkstationState], None]]
     _num_workers_changed_listeners: List[Callable[[int], None]]
@@ -65,10 +68,12 @@ class Device:
             workstation_code: str,
             sensor_system: SensorSystem,
             server_connection: ServerConnection) -> None:
-        self._workstation_code = workstation_code
-        self._old_workstation_state = WorkstationState.EMPTY
+        # dependencies
         self._sensor_system = sensor_system
         self._server_connection = server_connection
+        # state
+        self._workstation_code = workstation_code
+        self._old_workstation_state = WorkstationState.EMPTY
         self._num_workers = 0
         self._workstation_state_changed_listeners = []
         self._num_workers_changed_listeners = []
