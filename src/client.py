@@ -178,4 +178,7 @@ class MonitorApp(App):
 if __name__ == '__main__':
     Config.set('graphics', 'width', '800')
     Config.set('graphics', 'height', '480')
+    Config.set('graphics', 'top', '0')
+    Config.set('graphics', 'left', '0')
+    Config.set('graphics', 'borderless', 1)
     MonitorApp().run()
