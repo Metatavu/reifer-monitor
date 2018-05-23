@@ -30,7 +30,7 @@ from kivy.uix.widget import Widget
 from kivy.uix.textinput import TextInput
 
 from client_model import Device, Sensor, WorkstationState
-from fakesensors import BlinkingSensorSystem
+from sensors import SensorSystem
 from serverconnection import ServerConnection
 
 
@@ -76,18 +76,14 @@ class MonitorDeviceWidget(Widget):
 
     def __init__(self, **kwargs: Dict[str, Any]) -> None:
         super().__init__()
-        self.blinker = BlinkingSensorSystem([
-            Sensor(1, "Sensor 1", True),
-            Sensor(2, "Sensor 2", False),
-            Sensor(3, "Sensor 3", False),
-            Sensor(4, "Sensor 4", True)],
-            Clock.schedule_once)
+        sensor_system = SensorSystem(lambda f: Clock.schedule_once(f, 1e-3))
+        sensor_system.start()
         config = self.make_config()
         if "connect_url" not in config:
             raise ConfigurationException("`connect_url` not set in configuration")
         server_connection = ServerConnection(config["connect_url"])
         server_connection.connect()
-        model = Device("WS", self.blinker, server_connection)
+        model = Device("WS", sensor_system, server_connection)
         self.num_workers = model.num_workers
         self.on_sensors_model_change(model.sensors)
         model.add_num_workers_changed_listener(self.on_num_workers_model_change)
@@ -114,7 +110,7 @@ class MonitorDeviceWidget(Widget):
                 "environment variable.")
 
     def stop(self) -> None:
-        self.blinker.stop()
+        pass
 
     def on_num_workers_change(self, instance: Widget, value: int) -> None:
         self.model.num_workers = value
