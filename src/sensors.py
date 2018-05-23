@@ -60,6 +60,8 @@ class AmplitudeMeasurer:
 
 class SensorSystem(SensorSystemInterface):
     _vibration_active: bool
+    _vibration_sample: bool
+    _time_since_vibration_change: int
     _current_active: bool
     _current_sample_num: int
     _current_measurer: AmplitudeMeasurer
@@ -69,6 +71,8 @@ class SensorSystem(SensorSystemInterface):
     def __init__(self,
             schedule: Callable[[Callable[..., None]], None]) -> None:
         self._vibration_active = False
+        self._vibration_sample = False
+        self._time_since_vibration_change = 10000
         self._current_active = False
         self._sensor_change_listeners = []
         self._schedule = (schedule,)
@@ -85,7 +89,12 @@ class SensorSystem(SensorSystemInterface):
         schedule(self.update)
 
     def update(self, *args: Any) -> None:
-        vibration_active = bool(wiringpi.digitalRead(0))
+        vibration_sample = bool(wiringpi.digitalRead(0))
+        if self._vibration_sample != vibration_sample:
+            self._vibration_sample = vibration_sample
+            self._time_since_vibration_change = 0
+        self._time_since_vibration_change += 1
+        vibration_active = self._time_since_vibration_change < 1000
         if self._vibration_active != vibration_active:
             self._vibration_active = vibration_active
             for listener in self._sensor_change_listeners:
@@ -93,7 +102,7 @@ class SensorSystem(SensorSystemInterface):
         self._current_sample_num += 1
         if self._current_sample_num >= 1000:
             amplitude = self._current_measurer.amplitude()
-            current_active = amplitude > 30
+            current_active = amplitude > 40
             if self._current_active != current_active:
                 self._current_active = current_active
                 for listener in self._sensor_change_listeners:
