@@ -76,7 +76,7 @@ class SensorSystem(SensorSystemInterface):
         self._current_measurer = self._new_measurer()
 
     def _new_measurer(self) -> AmplitudeMeasurer:
-        return AmplitudeMeasurer(4, 100, 0, 1023)
+        return AmplitudeMeasurer(4, 10, 0, 4096)
 
     def start(self) -> None:
         wiringpi.wiringPiSetup()
@@ -93,7 +93,7 @@ class SensorSystem(SensorSystemInterface):
         self._current_sample_num += 1
         if self._current_sample_num >= 1000:
             amplitude = self._current_measurer.amplitude()
-            current_active = amplitude > 50
+            current_active = amplitude > 30
             if self._current_active != current_active:
                 self._current_active = current_active
                 for listener in self._sensor_change_listeners:
