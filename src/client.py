@@ -47,14 +47,16 @@ class ConfigurationException(Exception):
 class FocusingTextInput(TextInput):
     def on_parent(self, widget: Widget, parent: Widget) -> None:
         self.focus = True
-
-    def on_text_validate(self, *args: Any, **kwargs: Any) -> None:
-        super().on_text_validate(*args, **kwargs)
-        self.text = ""
+        # TODO: fix horrid hack
         @Clock.schedule_once
         # pylint: disable=W0612
         def refocus(*args: Any) -> None:
             self.focus = True
+            Clock.schedule_once(refocus)
+
+    def on_text_validate(self, *args: Any, **kwargs: Any) -> None:
+        super().on_text_validate(*args, **kwargs)
+        self.text = ""
 
 
 class MonitorDeviceWidget(Widget):

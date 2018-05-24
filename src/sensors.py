@@ -73,7 +73,7 @@ class SensorSystem(SensorSystemInterface):
             self._vibration_sample = vibration_sample
             self._time_since_vibration_change = 0
         self._time_since_vibration_change += 1
-        vibration_active = self._time_since_vibration_change < 1000
+        vibration_active = self._time_since_vibration_change < 300
         if self._vibration_active != vibration_active:
             self._vibration_active = vibration_active
             for listener in self._sensor_change_listeners:
