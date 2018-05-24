@@ -37,45 +37,6 @@ class QuickAmplitudeMeasurer:
         return (sum(self._values) / len(self._values)) > self._threshold
 
 
-class AmplitudeMeasurer:
-    _hist: Dict[int, int]
-    _quantization_factor: int
-    _noise_level: int
-
-    def __init__(self,
-                 quantization_factor: int,
-                 noise_level: int,
-                 min_bound: int,
-                 max_bound: int) -> None:
-        self._hist = {}
-        self._quantization_factor = quantization_factor
-        self._noise_level = noise_level
-        self._hist[min_bound] = 0
-        self._hist[max_bound] = 0
-
-    def sample(self, sample: int) -> None:
-        quantized = sample // self._quantization_factor
-        quantized *= self._quantization_factor
-        self._hist[quantized] = self._hist.get(quantized, 0) + 1
-
-    def amplitude(self) -> int:
-        samples = sorted(self._hist.items(), key=itemgetter(0))
-        low = None
-        high = None
-        for val, freq in samples:
-            if freq > self._noise_level:
-                low = val
-                break
-        for val, freq in reversed(samples):
-            if freq > self._noise_level:
-                high = val
-                break
-        if low is not None and high is not None:
-            return high - low
-        else:
-            return 0
-
-
 class SensorSystem(SensorSystemInterface):
     _vibration_active: bool
     _vibration_sample: bool
