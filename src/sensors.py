@@ -30,7 +30,8 @@ class QuickAmplitudeMeasurer:
     def sample(self, value: int) -> None:
         unbiased = value - self._bias
         self._values.append(abs(unbiased))
-        self._values[:-self._averaging] = []
+        while len(self._values) > self._averaging:
+            self._values.pop(0)
 
     def over_threshold(self) -> bool:
         return (sum(self._values) / len(self._values)) > self._threshold
