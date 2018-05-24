@@ -166,3 +166,13 @@
             size_hint_y: 3/12
             disabled: root.num_workers == 4
             on_press: root.num_workers = 4
+    AnchorLayout:
+        width: root.width
+        height: root.height
+        anchor_x: 'right'
+        anchor_y: 'top'
+        Button:
+            text: 'X'
+            size_hint_x: 24/800
+            size_hint_y: 24/480
+            on_press: app.stop()
