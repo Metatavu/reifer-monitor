@@ -76,7 +76,9 @@ class MonitorDeviceWidget(Widget):
 
     def __init__(self, **kwargs: Dict[str, Any]) -> None:
         super().__init__()
-        sensor_system = SensorSystem(lambda f: Clock.schedule_once(f, 1e-3))
+        def schedule(f: Callable[..., None]) -> None:
+            Clock.schedule_once(f, 1e-3)
+        sensor_system = SensorSystem(schedule)
         sensor_system.start()
         config = self.make_config()
         if "connect_url" not in config:

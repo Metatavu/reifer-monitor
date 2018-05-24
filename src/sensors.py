@@ -40,18 +40,14 @@ class AmplitudeMeasurer:
         samples = sorted(self._hist.items(), key=itemgetter(0))
         low = None
         high = None
-        previous = None
-        iterator = iter(samples)
-        for val, freq in iterator:
+        for val, freq in samples:
             if freq > self._noise_level:
                 low = val
                 break
-            previous = val
-        for val, freq in iterator:
-            if freq <= self._noise_level:
-                high = previous
+        for val, freq in reversed(samples):
+            if freq > self._noise_level:
+                high = val
                 break
-            previous = val
         if low is not None and high is not None:
             return high - low
         else:
