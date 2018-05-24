@@ -80,6 +80,7 @@ class SensorSystem(SensorSystemInterface):
     _vibration_active: bool
     _vibration_sample: bool
     _time_since_vibration_change: int
+    _current_off_time: int
     _current_active: bool
     _current_measurer: QuickAmplitudeMeasurer
     _sensor_change_listeners: List[Callable[[Sensor], None]]
@@ -90,13 +91,14 @@ class SensorSystem(SensorSystemInterface):
         self._vibration_active = False
         self._vibration_sample = False
         self._time_since_vibration_change = 10000
+        self._current_off_time = 10000
         self._current_active = False
         self._sensor_change_listeners = []
         self._schedule = (schedule,)
         self._current_measurer = self._new_measurer()
 
     def _new_measurer(self) -> QuickAmplitudeMeasurer:
-        return QuickAmplitudeMeasurer(2048, 50, 64)
+        return QuickAmplitudeMeasurer(2048, 10, 128)
 
     def start(self) -> None:
         wiringpi.wiringPiSetup()
@@ -117,7 +119,11 @@ class SensorSystem(SensorSystemInterface):
                 listener(Sensor(1, "Tärinä", vibration_active))
         current_sample = wiringpi.analogRead(0)
         self._current_measurer.sample(current_sample)
-        current_active = self._current_measurer.over_threshold()
+        if self._current_measurer.over_threshold():
+            self._current_off_time = 0
+        else:
+            self._current_off_time += 1
+        current_active = self._current_off_time < 1000
         if self._current_active != current_active:
             self._current_active = current_active
             for listener in self._sensor_change_listeners:
