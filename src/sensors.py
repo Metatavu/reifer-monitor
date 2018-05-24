@@ -15,6 +15,27 @@ else:
         import fakewiringpi as wiringpi
 
 
+class QuickAmplitudeMeasurer:
+    _bias: int
+    _threshold: int
+    _averaging: int
+    _values: List[float]
+
+    def __init__(self, bias: int, threshold: int, averaging: int) -> None:
+        self._bias = bias
+        self._threshold = threshold
+        self._averaging = averaging
+        self._values = []
+
+    def sample(self, value: int) -> None:
+        unbiased = value - self._bias
+        self._values.append(abs(unbiased))
+        self._values[:-self._averaging] = []
+
+    def over_threshold(self) -> bool:
+        return (sum(self._values) / len(self._values)) > self._threshold
+
+
 class AmplitudeMeasurer:
     _hist: Dict[int, int]
     _quantization_factor: int
@@ -59,8 +80,7 @@ class SensorSystem(SensorSystemInterface):
     _vibration_sample: bool
     _time_since_vibration_change: int
     _current_active: bool
-    _current_sample_num: int
-    _current_measurer: AmplitudeMeasurer
+    _current_measurer: QuickAmplitudeMeasurer
     _sensor_change_listeners: List[Callable[[Sensor], None]]
     _schedule: Tuple[Callable[[Callable[..., None]], None]]
 
@@ -72,11 +92,10 @@ class SensorSystem(SensorSystemInterface):
         self._current_active = False
         self._sensor_change_listeners = []
         self._schedule = (schedule,)
-        self._current_sample_num = 0
         self._current_measurer = self._new_measurer()
 
-    def _new_measurer(self) -> AmplitudeMeasurer:
-        return AmplitudeMeasurer(4, 10, 0, 4096)
+    def _new_measurer(self) -> QuickAmplitudeMeasurer:
+        return QuickAmplitudeMeasurer(2048, 50, 64)
 
     def start(self) -> None:
         wiringpi.wiringPiSetup()
@@ -95,19 +114,13 @@ class SensorSystem(SensorSystemInterface):
             self._vibration_active = vibration_active
             for listener in self._sensor_change_listeners:
                 listener(Sensor(1, "Tärinä", vibration_active))
-        self._current_sample_num += 1
-        if self._current_sample_num >= 1000:
-            amplitude = self._current_measurer.amplitude()
-            current_active = amplitude > 40
-            if self._current_active != current_active:
-                self._current_active = current_active
-                for listener in self._sensor_change_listeners:
-                    listener(Sensor(2, "Virta", current_active))
-            self._current_sample_num = 0
-            self._current_measurer = self._new_measurer()
-        else:
-            current_sample = wiringpi.analogRead(0)
-            self._current_measurer.sample(current_sample)
+        current_sample = wiringpi.analogRead(0)
+        self._current_measurer.sample(current_sample)
+        current_active = self._current_measurer.over_threshold()
+        if self._current_active != current_active:
+            self._current_active = current_active
+            for listener in self._sensor_change_listeners:
+                listener(Sensor(2, "Virta", current_active))
         schedule, = self._schedule
         schedule(self.update)
 
