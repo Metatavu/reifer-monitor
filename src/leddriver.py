@@ -47,14 +47,14 @@ class LedDriver:
                 for i in range(8):
                     if color & (1<<i): # 1.2μs high, 1.3μs low
                         wiringpi.digitalWrite(1, 1)
-                        sleep(1.2e-6)
+                        #sleep(1.2e-6)
                         wiringpi.digitalWrite(1, 0)
-                        sleep(1.3e-6)
+                        #sleep(1.3e-6)
                     else: # 0.5μs high, 2.0μs low
                         wiringpi.digitalWrite(1, 1)
-                        sleep(0.5e-6)
+                        #sleep(0.5e-6)
                         wiringpi.digitalWrite(1, 0)
-                        sleep(2.0e-6)
+                        #sleep(2.0e-6)
             sleep(1000e-6)
 
 # vim: tw=80 sw=4 ts=4 expandtab:
