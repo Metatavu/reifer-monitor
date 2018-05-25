@@ -35,14 +35,6 @@ from sensors import SensorSystem
 from leddriver import LedDriver
 from serverconnection import ServerConnection
 
-if TYPE_CHECKING:
-    import fakewiringpi as wiringpi
-else:
-    try:
-        import wiringpi
-    except ImportError:
-        import fakewiringpi as wiringpi
-
 
 class SensorStatus(NamedTuple):
     name: str
@@ -193,8 +185,4 @@ if __name__ == '__main__':
     Config.set('graphics', 'top', '0')
     Config.set('graphics', 'left', '0')
     Config.set('graphics', 'borderless', 1)
-    wiringpi.wiringPiSetup()
-    wiringpi.pinMode(0, 0)
-    wiringpi.pinMode(1, 1)
-    wiringpi.pinMode(2, 1)
     MonitorApp().run()

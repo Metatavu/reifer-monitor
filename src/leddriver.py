@@ -17,46 +17,30 @@
 from typing import Iterator, TYPE_CHECKING, Callable, Tuple, Any
 from threading import Thread
 from time import sleep
-
-if TYPE_CHECKING:
-    import fakewiringpi as wiringpi
-else:
-    try:
-        import wiringpi
-    except ImportError:
-        import fakewiringpi as wiringpi
+from serial import Serial
+from serial.tools.list_ports import comports
+from logging import log, ERROR
 
 class LedDriver:
-    _r: int
-    _g: int
-    _b: int
-    _thread: Thread
+    _enabled: bool
+    _serial: Serial
 
     def __init__(self) -> None:
-        self._r = 255
-        self._g = 255
-        self._b = 255
-        self._thread = Thread(target=self._run, daemon=True)
+        self._enabled = False
+        self._serial = Serial()
 
     def start(self) -> None:
-        self._thread.start()
+        try:
+            (port, _, _), *_ = comports()
+        except ValueError:
+            log(ERROR, "No COM port found")
+            return
+        self._serial.port = port
+        self._serial.open()
+        self._enabled = True
 
-    def _run(self) -> None:
-        while True:
-            wiringpi.shiftOut(1, 2, 0, 0b10101010)
-            if False:
-                for color in (self._r, self._g, self._b):
-                    for i in range(8):
-                        if color & (1<<i): # 1.2μs high, 1.3μs low
-                            wiringpi.shiftOut(1, 2, 0, 0b10101010)
-                            #sleep(1.2e-6)
-                            wiringpi.digitalWrite(1, 0)
-                            #sleep(1.3e-6)
-                        else: # 0.5μs high, 2.0μs low
-                            wiringpi.digitalWrite(1, 1)
-                            #sleep(0.5e-6)
-                            wiringpi.digitalWrite(1, 0)
-                            #sleep(2.0e-6)
-            sleep(1000e-6)
+    def set_color(self, r: int, g: int, b: int) -> None:
+        if self._enabled:
+            self._serial.write(f"{r},{g},{b}\n".encode('ascii'))
 
 # vim: tw=80 sw=4 ts=4 expandtab:

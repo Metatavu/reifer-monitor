@@ -80,6 +80,8 @@ class SensorSystem(SensorSystemInterface):
         return QuickAmplitudeMeasurer(2048, 11, 256)
 
     def start(self) -> None:
+        wiringpi.wiringPiSetup()
+        wiringpi.pinMode(0, 0)
         schedule, = self._schedule
         schedule(self.update)
 

@@ -16,6 +16,7 @@ pygments = "*"
 "kivy.deps.sdl2" = "*"
 "kivy.deps.glew" = "*"
 pyusb = "*"
+pyserial = "*"
 
 [dev-packages]
 nose = "*"
