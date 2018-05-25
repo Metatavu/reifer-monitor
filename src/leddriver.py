@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Iterator, TYPE_CHECKING, Callable, Tuple
+from typing import Iterator, TYPE_CHECKING, Callable, Tuple, Any
 
 if TYPE_CHECKING:
     import fakewiringpi as wiringpi
@@ -64,7 +64,7 @@ class LedDriver:
             for i in range(1000): # 1000μs pause
                 yield None
 
-    def update(self) -> None:
+    def update(self, *args: Any) -> None:
         next(self._generator)
         schedule, = self._schedule
         schedule(self.update)
