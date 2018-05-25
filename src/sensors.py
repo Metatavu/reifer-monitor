@@ -1,3 +1,18 @@
+# Copyright (C) 2018 Metatavu Oy
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+# 
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 from typing import TYPE_CHECKING, Callable, Dict, List, Tuple, Any
 from operator import itemgetter
 from enum import Enum
@@ -65,8 +80,6 @@ class SensorSystem(SensorSystemInterface):
         return QuickAmplitudeMeasurer(2048, 11, 256)
 
     def start(self) -> None:
-        wiringpi.wiringPiSetup()
-        wiringpi.pinMode(0, 0)
         schedule, = self._schedule
         schedule(self.update)
 
@@ -106,3 +119,5 @@ class SensorSystem(SensorSystemInterface):
             self,
             listener: Callable[[Sensor], None]) -> None:
         self._sensor_change_listeners.append(listener)
+
+# vim: tw=80 sw=4 ts=4 expandtab:

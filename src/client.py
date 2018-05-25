@@ -17,21 +17,31 @@
 
 import os
 import sys
-from typing import Any, Callable, Dict, List, NamedTuple, Optional
+from typing import (TYPE_CHECKING, Any, Callable, Dict, List, NamedTuple,
+                    Optional)
 
 import toml
 from kivy.app import App
-from kivy.config import Config
 from kivy.clock import Clock
+from kivy.config import Config
 from kivy.graphics import Color
 from kivy.properties import (ListProperty, NumericProperty, ObjectProperty,
                              StringProperty)
-from kivy.uix.widget import Widget
 from kivy.uix.textinput import TextInput
+from kivy.uix.widget import Widget
 
 from client_model import Device, Sensor, WorkstationState
 from sensors import SensorSystem
+from leddriver import LedDriver
 from serverconnection import ServerConnection
+
+if TYPE_CHECKING:
+    import fakewiringpi as wiringpi
+else:
+    try:
+        import wiringpi
+    except ImportError:
+        import fakewiringpi as wiringpi
 
 
 class SensorStatus(NamedTuple):
@@ -78,10 +88,14 @@ class MonitorDeviceWidget(Widget):
 
     def __init__(self, **kwargs: Dict[str, Any]) -> None:
         super().__init__()
-        def schedule(f: Callable[..., None]) -> None:
+        def schedule_sensor(f: Callable[..., None]) -> None:
             Clock.schedule_once(f, 1e-3)
-        sensor_system = SensorSystem(schedule)
+        sensor_system = SensorSystem(schedule_sensor)
         sensor_system.start()
+        def schedule_led(f: Callable[..., None]) -> None:
+            Clock.schedule_once(f, 100e-9)
+        led_driver = LedDriver(schedule_led)
+        led_driver.start()
         config = self.make_config()
         if "connect_url" not in config:
             raise ConfigurationException("`connect_url` not set in configuration")
@@ -181,4 +195,7 @@ if __name__ == '__main__':
     Config.set('graphics', 'top', '0')
     Config.set('graphics', 'left', '0')
     Config.set('graphics', 'borderless', 1)
+    wiringpi.wiringPiSetup()
+    wiringpi.pinMode(0, 0)
+    wiringpi.pinMode(1, 1)
     MonitorApp().run()
