@@ -60,8 +60,7 @@ class CardManagerWidget(Widget):
 
     def __init__(self, **kwargs: Dict[str, Any]) -> None:
         super().__init__()
-        self._server_connection = ServerConnection(
-            os.environ['MONITOR_SERVER_ADDR'])
+        self._server_connection = ServerConnection(sys.argv[1])
         self._server_connection.connect()
 
     def on_associate(self) -> None:

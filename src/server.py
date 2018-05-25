@@ -406,17 +406,7 @@ def init(config: Dict[str, Any]) -> Engine:
                         stream=sys.stderr,
                         format="%(asctime)s - %(module)s:%(message)s")
 
-    if config["db_provider"] == 'sqlite':
-        url = 'sqlite:///{}'.format(config['db_filename'])
-    elif config["db_provider"] == 'postgres':
-        url = 'postgresql://{}:{}@{}/{}'.format(
-            config["db_user"],
-            config["db_password"],
-            config["db_host"],
-            config["db_database"])
-    else:
-        raise ConfigurationException("Database configured improperly")
-
+    url = config["db_url"]
     engine = create_engine(url)
     migration_url = url
 

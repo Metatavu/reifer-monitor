@@ -34,7 +34,10 @@ class QuickAmplitudeMeasurer:
             self._values.pop(0)
 
     def over_threshold(self) -> bool:
-        return (sum(self._values) / len(self._values)) > self._threshold
+        if len(self._values) < self._averaging:
+            return False
+        else:
+            return (sum(self._values) / len(self._values)) > self._threshold
 
 
 class SensorSystem(SensorSystemInterface):
@@ -59,7 +62,7 @@ class SensorSystem(SensorSystemInterface):
         self._current_measurer = self._new_measurer()
 
     def _new_measurer(self) -> QuickAmplitudeMeasurer:
-        return QuickAmplitudeMeasurer(2048, 10, 256)
+        return QuickAmplitudeMeasurer(2048, 11, 256)
 
     def start(self) -> None:
         wiringpi.wiringPiSetup()
