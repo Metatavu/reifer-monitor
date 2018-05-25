@@ -18,3 +18,6 @@ def digitalWrite(pin: int, value: int) -> None:
     
 def analogRead(pin: int) -> int:
     return int(512 + 128*sin(time.clock()))
+
+def shiftOut(dataPin: int, clockPin: int, order: int, data: int) -> None:
+    pass

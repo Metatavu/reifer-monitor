@@ -196,4 +196,5 @@ if __name__ == '__main__':
     wiringpi.wiringPiSetup()
     wiringpi.pinMode(0, 0)
     wiringpi.pinMode(1, 1)
+    wiringpi.pinMode(2, 1)
     MonitorApp().run()
