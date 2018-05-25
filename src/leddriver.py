@@ -15,6 +15,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from typing import Iterator, TYPE_CHECKING, Callable, Tuple, Any
+from threading import Thread
+from time import sleep
 
 if TYPE_CHECKING:
     import fakewiringpi as wiringpi
@@ -28,46 +30,31 @@ class LedDriver:
     _r: int
     _g: int
     _b: int
-    _generator: Iterator[None]
-    _schedule: Tuple[Callable[[Callable[..., None]], None]]
+    _thread: Thread
 
-    def __init__(self,
-            schedule: Callable[[Callable[..., None]], None]) -> None:
+    def __init__(self) -> None:
         self._r = 255
         self._g = 255
         self._b = 255
-        self._generator = self._generate()
-        self._schedule = (schedule,)
+        self._thread = Thread(target=self._run, daemon=True)
 
     def start(self) -> None:
-        schedule, = self._schedule
-        schedule(self.update)
+        self._thread.start()
 
-    def _generate(self) -> Iterator[None]:
+    def _run(self) -> None:
         while True:
             for color in (self._r, self._g, self._b):
                 for i in range(8):
                     if color & (1<<i): # 1.2μs high, 1.3μs low
                         wiringpi.digitalWrite(1, 1)
-                        for _ in range(12):
-                            yield None
+                        sleep(1.2e-6)
                         wiringpi.digitalWrite(1, 0)
-                        for _ in range(13):
-                            yield None
+                        sleep(1.3e-6)
                     else: # 0.5μs high, 2.0μs low
                         wiringpi.digitalWrite(1, 1)
-                        for _ in range(5):
-                            yield None
+                        sleep(0.5e-6)
                         wiringpi.digitalWrite(1, 0)
-                        for _ in range(20):
-                            yield None
-            for i in range(1000): # 1000μs pause
-                yield None
-
-    def update(self, *args: Any) -> None:
-        next(self._generator)
-        schedule, = self._schedule
-        schedule(self.update)
-
+                        sleep(2.0e-6)
+            sleep(1000e-6)
 
 # vim: tw=80 sw=4 ts=4 expandtab:

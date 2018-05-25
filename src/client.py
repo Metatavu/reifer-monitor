@@ -92,9 +92,7 @@ class MonitorDeviceWidget(Widget):
             Clock.schedule_once(f, 1e-3)
         sensor_system = SensorSystem(schedule_sensor)
         sensor_system.start()
-        def schedule_led(f: Callable[..., None]) -> None:
-            Clock.schedule_once(f, 100e-9)
-        led_driver = LedDriver(schedule_led)
+        led_driver = LedDriver()
         led_driver.start()
         config = self.make_config()
         if "connect_url" not in config:
