@@ -65,6 +65,7 @@ class MonitorDeviceWidget(Widget):
     num_workers: NumericProperty = NumericProperty()
     batch_name: StringProperty = StringProperty('')
     batch_code: StringProperty = StringProperty('')
+    led_driver: LedDriver
     workstation_color_r: NumericProperty = NumericProperty()
     workstation_color_g: NumericProperty = NumericProperty()
     workstation_color_b: NumericProperty = NumericProperty()
@@ -84,8 +85,9 @@ class MonitorDeviceWidget(Widget):
             Clock.schedule_once(f, 1e-3)
         sensor_system = SensorSystem(schedule_sensor)
         sensor_system.start()
-        led_driver = LedDriver()
-        led_driver.start()
+        self.led_driver = LedDriver()
+        self.led_driver.start()
+        self.led_driver.set_color(255, 0, 0)
         config = self.make_config()
         if "connect_url" not in config:
             raise ConfigurationException("`connect_url` not set in configuration")
@@ -145,18 +147,21 @@ class MonitorDeviceWidget(Widget):
             self.workstation_color_b = 0
             self.workstation_color_a = 1
             self.workstation_state = "TYHJÄ"
+            self.led_driver.set_color(255, 0, 0)
         elif state == WorkstationState.IDLE:
             self.workstation_color_r = 0.5
             self.workstation_color_g = 0.5
             self.workstation_color_b = 0
             self.workstation_color_a = 1
             self.workstation_state = "EI KÄYTÖSSÄ"
+            self.led_driver.set_color(255, 255, 0)
         elif state == WorkstationState.ACTIVE:
             self.workstation_color_r = 0
             self.workstation_color_g = 0.67
             self.workstation_color_b = 0.375
             self.workstation_color_a = 1
             self.workstation_state = "KÄYTÖSSÄ"
+            self.led_driver.set_color(0, 255, 0)
 
     def _compute_sensor_status(self, sensor: Optional[Sensor]) -> SensorStatus:
         if sensor is None:

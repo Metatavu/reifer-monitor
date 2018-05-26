@@ -1,6 +1,3 @@
 [submodule "vendor/mypy-types-kivy"]
 	path = vendor/mypy-types-kivy
 	url = https://github.com/Metatavu/mypy-types-kivy.git
-[submodule "vendor/ledcolor"]
-	path = vendor/ledcolor
-	url = https://github.com/ilmoeuro/ledcolor.git

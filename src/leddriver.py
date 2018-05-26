@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Iterator, TYPE_CHECKING, Callable, Tuple, Any
+from typing import Iterator, TYPE_CHECKING, Callable, Tuple, Any, Optional
 from threading import Thread
 from time import sleep
 from serial import Serial
@@ -22,12 +22,10 @@ from serial.tools.list_ports import comports
 from logging import log, ERROR
 
 class LedDriver:
-    _enabled: bool
-    _serial: Serial
+    _serial: Optional[Serial]
 
     def __init__(self) -> None:
-        self._enabled = False
-        self._serial = Serial()
+        self._serial = None
 
     def start(self) -> None:
         try:
@@ -35,12 +33,10 @@ class LedDriver:
         except ValueError:
             log(ERROR, "No COM port found")
             return
-        self._serial.port = port
-        self._serial.open()
-        self._enabled = True
+        self._serial = Serial(port=port)
 
     def set_color(self, r: int, g: int, b: int) -> None:
-        if self._enabled:
-            self._serial.write(f"{r},{g},{b}\n".encode('ascii'))
+        if self._serial is not None:
+            self._serial.write(f"R{r}G{g}B{b}".encode('ascii'))
 
 # vim: tw=80 sw=4 ts=4 expandtab:
