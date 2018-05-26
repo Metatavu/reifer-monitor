@@ -1,3 +1,6 @@
 [submodule "reifer-monitor-device/vendor/mypy-types-kivy"]
 	path = vendor/mypy-types-kivy
 	url = git@github.com:Metatavu/mypy-types-kivy.git
+[submodule "vendor/ledcolor"]
+	path = vendor/ledcolor
+	url = git@github.com:ilmoeuro/ledcolor.git
