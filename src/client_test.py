@@ -39,6 +39,15 @@ class FakeSensorSystem(SensorSystem):
             listener: Callable[[Sensor], None]) -> None:
         self.fake_sensor_change_listener = listener
 
+    @property
+    def proximity(self) -> bool:
+        return False
+    
+    def add_proximity_change_listener(
+            self,
+            listener: Callable[[bool], None]) -> None:
+        pass
+
 
 class FakeServerConnection(ServerConnection):
     def __init__(self) -> None:

@@ -40,6 +40,17 @@ class SensorSystem(metaclass=ABCMeta):
             listener: Callable[[Sensor], None]) -> None:
         pass
 
+    @property
+    @abstractmethod
+    def proximity(self) -> bool:
+        pass
+    
+    @abstractmethod
+    def add_proximity_change_listener(
+            self,
+            listener: Callable[[bool], None]) -> None:
+        pass
+
 
 class WorkstationState(Enum):
     EMPTY = 1
@@ -111,6 +122,10 @@ class Device:
         for workstation_listener in self._workstation_state_changed_listeners:
             workstation_listener(workstation_state)
 
+    def _on_proximity_changed(self, proximity: bool) -> None:
+        if not proximity:
+            self.num_workers = 0
+
     def _notify_work_run(self, workstation_state: WorkstationState) -> None:
         if workstation_state != self._old_workstation_state:
             if workstation_state == WorkstationState.ACTIVE:
@@ -137,6 +152,8 @@ class Device:
                 self._server_connection.start_activity_period(
                     self._workstation_code, 
                     num_workers)
+            for num_listener in self._num_workers_changed_listeners:
+                num_listener(num_workers)
         workstation_state = self.workstation_state
         self._notify_work_run(workstation_state)
         for listener in self._workstation_state_changed_listeners:
