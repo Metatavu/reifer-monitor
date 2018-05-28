@@ -63,7 +63,6 @@ class SensorSystem(SensorSystemInterface):
     _current_active: bool
     _current_measurer: QuickAmplitudeMeasurer
     _sensor_change_listeners: List[Callable[[Sensor], None]]
-    _proximity_change_listeners: List[Callable[[bool], None]]
     _schedule: Tuple[Callable[[Callable[..., None]], None]]
     _proximity_active: bool
 
@@ -76,7 +75,6 @@ class SensorSystem(SensorSystemInterface):
         self._current_active = False
         self._proximity_active = False
         self._sensor_change_listeners = []
-        self._proximity_change_listeners = []
         self._schedule = (schedule,)
         self._current_measurer = self._new_measurer()
 
@@ -115,8 +113,6 @@ class SensorSystem(SensorSystemInterface):
         proximity_active = bool(wiringpi.digitalRead(1))
         if self._proximity_active != proximity_active:
             self._proximity_active = proximity_active
-            for prox_listener in self._proximity_change_listeners:
-                prox_listener(proximity_active)
             for listener in self._sensor_change_listeners:
                 listener(Sensor(3, "PIR", proximity_active))
         schedule, = self._schedule
@@ -134,16 +130,6 @@ class SensorSystem(SensorSystemInterface):
             self,
             listener: Callable[[Sensor], None]) -> None:
         self._sensor_change_listeners.append(listener)
-
-    @property
-    def proximity(self) -> bool:
-        return self._proximity_active
-    
-    def add_proximity_change_listener(
-            self,
-            listener: Callable[[bool], None]) -> None:
-        self._proximity_change_listeners.append(listener)
-
 
 
 # vim: tw=80 sw=4 ts=4 expandtab:
