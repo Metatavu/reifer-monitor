@@ -117,6 +117,8 @@ class SensorSystem(SensorSystemInterface):
             self._proximity_active = proximity_active
             for prox_listener in self._proximity_change_listeners:
                 prox_listener(proximity_active)
+            for listener in self._sensor_change_listeners:
+                listener(Sensor(3, "PIR", proximity_active))
         schedule, = self._schedule
         schedule(self.update)
 
@@ -124,7 +126,8 @@ class SensorSystem(SensorSystemInterface):
     def sensors(self) -> List[Sensor]:
         return [
             Sensor(1, "Tärinä", self._vibration_active),
-            Sensor(2, "Virta", self._current_active)
+            Sensor(2, "Virta", self._current_active),
+            Sensor(3, "PIR", self._proximity_active)
         ]
 
     def add_sensor_change_listener(
