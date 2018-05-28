@@ -74,6 +74,7 @@ class SensorSystem(SensorSystemInterface):
         self._time_since_vibration_change = 10000
         self._current_off_time = 10000
         self._current_active = False
+        self._proximity_active = False
         self._sensor_change_listeners = []
         self._proximity_change_listeners = []
         self._schedule = (schedule,)
