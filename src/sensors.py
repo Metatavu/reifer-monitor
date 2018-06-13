@@ -79,7 +79,7 @@ class SensorSystem(SensorSystemInterface):
         self._current_measurer = self._new_measurer()
 
     def _new_measurer(self) -> QuickAmplitudeMeasurer:
-        return QuickAmplitudeMeasurer(2048, 11, 256)
+        return QuickAmplitudeMeasurer(2048, 25, 256)
 
     def start(self) -> None:
         wiringpi.wiringPiSetup()
