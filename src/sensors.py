@@ -105,7 +105,7 @@ class SensorSystem(SensorSystemInterface):
             self._current_off_time = 0
         else:
             self._current_off_time += 1
-        current_active = self._current_off_time < 500
+        current_active = self._current_off_time < 60*1000
         if self._current_active != current_active:
             self._current_active = current_active
             for listener in self._sensor_change_listeners:
