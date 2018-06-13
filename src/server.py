@@ -21,7 +21,9 @@ import os
 import re
 import sys
 from abc import ABCMeta, abstractmethod
-from datetime import datetime
+from datetime import datetime, timedelta
+import time
+from threading import Thread
 from traceback import extract_tb
 from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Tuple, List
 
@@ -104,6 +106,7 @@ class WorkRun(BaseEntity):
     batch_id: Optional[int] = Column(Integer, ForeignKey("Batch.id"), nullable=True)
     batch: Optional[Batch] = relationship("Batch")
     start: datetime = Column(DateTime, nullable=False)
+    last_active: datetime = Column(DateTime, nullable=False)
     stop: Optional[datetime] = Column(DateTime, nullable=True)
 
     def __init__(self,
@@ -113,6 +116,7 @@ class WorkRun(BaseEntity):
             workstation_id=workstation.id,
             batch_id=batch.id if batch is not None else None,
             start=now(),
+            last_active=now(),
             stop=None)
 
 
@@ -151,6 +155,7 @@ class Server:
     def __init__(self, engine: Engine) -> None:
         self.engine = engine
         self.make_session = sessionmaker(bind=engine)
+        self._work_run_terminator: Optional[Thread] = None
 
     def session(self) -> Session:
         return self.make_session()
@@ -251,6 +256,28 @@ class Server:
         finally:
             sess.close()
 
+    def refresh_work_run(self,
+                         workstation_code: str) -> None:
+        self.ensure_workstation(workstation_code)
+        print(f"Refreshing work run on {workstation_code}")
+        sess = self.session()
+        try:
+            ws = self.find_workstation_by_code(sess, workstation_code)
+            run = (sess.query(WorkRun)
+                      .filter_by(workstation_id=ws.id)
+                      .order_by(desc(WorkRun.start))
+                      .first())
+            if run is None:
+                return
+            if run.stop is not None:
+                return
+            assert isinstance(run, WorkRun)
+            run.last_active = now()
+            sess.add(run)
+            sess.commit()
+        finally:
+            sess.close()
+
     def stop_work_run(self,
                       workstation_code: str) -> None:
         self.ensure_workstation(workstation_code)
@@ -308,10 +335,29 @@ class Server:
         finally:
             sess.close()
 
+    def terminate_work_runs_process(self) -> None:
+        while True:
+            threshold = now() - timedelta(seconds=60)
+            sess = self.session()
+            runs = (sess.query(WorkRun)
+                        .filter(WorkRun.last_active < threshold)
+                        .filter_by(stop=None)
+                        .all())
+            for run in runs:
+                run.stop = run.last_active + timedelta(seconds=60)
+                sess.add(run)
+            sess.commit()
+            time.sleep(60)
+
     def run_server(self, bind_address: str) -> None:
         context = zmq.Context()
         socket = context.socket(zmq.REP)
         socket.bind(bind_address)
+
+        self._work_run_terminator = Thread(
+            target=self.terminate_work_runs_process,
+            daemon=True)
+        self._work_run_terminator.start()
 
         print("server started")
         
@@ -345,6 +391,10 @@ class Server:
         self.start_work_run(message.workstation_code)
         return StartWorkRunResponse()
 
+    def handle_refresh_work_run(self, message: RefreshWorkRunRequest) -> RefreshWorkRunResponse:
+        self.refresh_work_run(message.workstation_code)
+        return RefreshWorkRunResponse()
+
     def handle_stop_work_run(self, message: StopWorkRunRequest) -> StopWorkRunResponse:
         self.stop_work_run(message.workstation_code)
         return StopWorkRunResponse()
@@ -368,6 +418,8 @@ class Server:
             return self.handle_stop_activity_period(message)
         if isinstance(message, StartWorkRunRequest):
             return self.handle_start_work_run(message)
+        if isinstance(message, RefreshWorkRunRequest):
+            return self.handle_refresh_work_run(message)
         if isinstance(message, StopWorkRunRequest):
             return self.handle_stop_work_run(message)
         if isinstance(message, StartWorkRequest):

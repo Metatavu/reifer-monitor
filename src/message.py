@@ -34,6 +34,12 @@ class StartWorkRunRequest(NamedTuple):
 class StartWorkRunResponse(NamedTuple):
     pass
 
+class RefreshWorkRunRequest(NamedTuple):
+    workstation_code: str
+
+class RefreshWorkRunResponse(NamedTuple):
+    pass
+
 class StopWorkRunRequest(NamedTuple):
     workstation_code: str
 

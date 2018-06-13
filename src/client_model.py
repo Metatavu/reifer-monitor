@@ -182,5 +182,8 @@ class Device:
                     batch_code)
         self._batch_code = batch_code
 
+    def refresh(self) -> None:
+        self._server_connection.refresh_work_run(self._workstation_code)
+
 
 # vim: tw=80 sw=4 ts=4 expandtab:

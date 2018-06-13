@@ -74,6 +74,10 @@ class ServerConnection:
         resp = self._communicate(StartWorkRunRequest(workstation_code))
         assert isinstance(resp, StartWorkRunResponse)
 
+    def refresh_work_run(self, workstation_code: str) -> None:
+        resp = self._communicate(RefreshWorkRunRequest(workstation_code))
+        assert isinstance(resp, RefreshWorkRunResponse)
+
     def stop_work_run(self, workstation_code: str) -> None:
         resp = self._communicate(StopWorkRunRequest(workstation_code))
         assert isinstance(resp, StopWorkRunResponse)

@@ -101,6 +101,10 @@ class MonitorDeviceWidget(Widget):
         model.add_workstation_state_changed_listener(self.on_workstation_state_model_change)
         model.add_batch_name_changed_listener(self.on_batch_name_model_change)
         self.model = model
+        def refresh() -> None:
+            self.model.refresh()
+            Clock.schedule_once(lambda *args: refresh(), 0.25)
+        refresh()
         self.bind(num_workers=self.on_num_workers_change)
         self.on_workstation_state_model_change(model.workstation_state)
 
