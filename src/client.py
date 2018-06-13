@@ -130,8 +130,13 @@ class MonitorDeviceWidget(Widget):
         self.model.num_workers = value
 
     def on_batch_code_input(self, value: str) -> None:
-        self.model.batch_code = value
-        self.batch_code = value
+        if self.model.batch_code == value:
+            self.model.batch_code = ""
+            self.batch_code = ""
+            self.batch_name = ""
+        else:
+            self.model.batch_code = value
+            self.batch_code = value
 
     def on_num_workers_model_change(self, num_workers: int) -> None:
         self.num_workers = num_workers
