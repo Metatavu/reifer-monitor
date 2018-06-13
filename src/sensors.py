@@ -79,7 +79,7 @@ class SensorSystem(SensorSystemInterface):
         self._current_measurer = self._new_measurer()
 
     def _new_measurer(self) -> QuickAmplitudeMeasurer:
-        return QuickAmplitudeMeasurer(2048, 25, 256)
+        return QuickAmplitudeMeasurer(2048, 100, 256)
 
     def start(self) -> None:
         wiringpi.wiringPiSetup()
@@ -105,7 +105,7 @@ class SensorSystem(SensorSystemInterface):
             self._current_off_time = 0
         else:
             self._current_off_time += 1
-        current_active = self._current_off_time < 60*1000
+        current_active = self._current_off_time < 2000
         if self._current_active != current_active:
             self._current_active = current_active
             for listener in self._sensor_change_listeners:
