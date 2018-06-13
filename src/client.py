@@ -103,7 +103,7 @@ class MonitorDeviceWidget(Widget):
         self.model = model
         def refresh() -> None:
             self.model.refresh()
-            Clock.schedule_once(lambda *args: refresh(), 0.25)
+            Clock.schedule_once(lambda *args: refresh(), 15)
         refresh()
         self.bind(num_workers=self.on_num_workers_change)
         self.on_workstation_state_model_change(model.workstation_state)
