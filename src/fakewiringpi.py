@@ -8,6 +8,8 @@ def pinMode(pin: int, mode: int) -> None:
     pass
 
 def digitalRead(pin: int) -> int:
+    if pin == 1:
+        return 1
     if int(time.clock() % 10) < 5:
         return 1
     else:

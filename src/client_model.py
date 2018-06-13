@@ -135,10 +135,9 @@ class Device:
         self._num_workers = num_workers
         if num_workers != old_workers:
             self._server_connection.stop_activity_period(self._workstation_code)
-            if num_workers > 0:
-                self._server_connection.start_activity_period(
-                    self._workstation_code, 
-                    num_workers)
+            self._server_connection.start_activity_period(
+                self._workstation_code, 
+                num_workers)
             for num_listener in self._num_workers_changed_listeners:
                 num_listener(num_workers)
         workstation_state = self.workstation_state
